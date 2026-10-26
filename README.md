@@ -16,6 +16,6 @@ branches whose distance exceeds the cutoff) instead of comparing against every w
 
 Embedded-track variant: Tab-completion for an embedded device shell. Boards running
 Zephyr, U-Boot or a custom CLI expose a serial shell with command completion. Students
-build the command trie under a strict memory budget (radix trie, fixed node pool), and imple-
-ment command history (up/down arrows) with a fixed-size ring buffer: a natural queue/stack
+build the command trie under a strict memory budget (radix trie, fixed node pool), and implement 
+command history (up/down arrows) with a fixed-size ring buffer: a natural queue/stack
 exercise.
