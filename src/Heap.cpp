@@ -4,8 +4,8 @@ using namespace std;
 
 // Constructor allocates dynamic array
 Heap::Heap(int initial_capacity){
-	if(initial_capacity == 0)
-		initial_capacity = 1; // Zero capacity may cause errors when resizing so make sure it can't be the capacity
+	if(initial_capacity <= 0)
+		initial_capacity = 1; // Capacity less than or equal zero may cause errors when resizing so make sure it can't be the capacity
 	capacity = initial_capacity;
         size = 0;
         data = new HeapNode[capacity];
@@ -26,7 +26,7 @@ void Heap::resize(){
                 newData[i] = data[i];
         }
 
-        delete[] data; // Frees old memeory
+        delete[] data; // Frees old memory
         data = newData; // Pointer points to the new array
 }
 
