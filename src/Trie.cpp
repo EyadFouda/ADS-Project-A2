@@ -1,6 +1,7 @@
 
 #include "Trie.h"
 
+// Initializes an empty Trie node with no children or completions.
 TrieNode::TrieNode() {
     isEndOfWord = false;
     frequency = 0;
@@ -11,10 +12,12 @@ TrieNode::TrieNode() {
     }
 }
 
+// Creates the Trie and initializes its root node.
 Trie::Trie() {
     root = new TrieNode();
 }
 
+// Converts a lowercase character into its corresponding array index.
 int Trie::getIndex(char c) const {
     if (c < 'a' || c > 'z') {
         return -1;
@@ -23,6 +26,7 @@ int Trie::getIndex(char c) const {
     return c - 'a';
 }
 
+// Checks whether a word contains only lowercase English letters.
 bool Trie::isValidWord(const string& word) const {
     if (word.empty()) {
         return false;
@@ -37,6 +41,7 @@ bool Trie::isValidWord(const string& word) const {
     return true;
 }
 
+// Inserts a word and updates its cached top-five completions along its path.
 void Trie::insert(const string& word, int frequency) {
     if (!isValidWord(word) || frequency <= 0) {
         return;
@@ -75,6 +80,7 @@ void Trie::insert(const string& word, int frequency) {
     }
 }
 
+// Checks whether a complete word exists in the Trie.
 bool Trie::search(const string& word) const {
     if (!isValidWord(word)) {
         return false;
@@ -95,6 +101,7 @@ bool Trie::search(const string& word) const {
     return current->isEndOfWord;
 }
 
+// Checks whether the Trie contains any word starting with the given prefix.
 bool Trie::startsWith(const string& prefix) const {
     if (prefix.empty()) {
         return true;
@@ -115,6 +122,7 @@ bool Trie::startsWith(const string& prefix) const {
     return true;
 }
 
+// Maintains the five highest-frequency completions in descending order.
 void Trie::updateTopK(
     TrieNode* node,
     const string& word,
@@ -168,6 +176,7 @@ void Trie::updateTopK(
     node->topK[position].frequency = frequency;
 }
 
+// Finds the prefix node and copies its highest-ranked completions into results.
 int Trie::autocomplete(
     const string& prefix,
     Completion results[],
@@ -202,6 +211,7 @@ int Trie::autocomplete(
     return count;
 }
 
+// Recursively removes a word and identifies nodes that can safely be deleted.
 bool Trie::deleteHelper(
     TrieNode* node,
     const string& word,
@@ -257,6 +267,7 @@ bool Trie::deleteHelper(
     return true;
 }
 
+// Recalculates cached top-five completions for a node and its descendants.
 void Trie::rebuildTopK(TrieNode* node, string& prefix) {
     if (node == nullptr) {
         return;
@@ -287,6 +298,7 @@ void Trie::rebuildTopK(TrieNode* node, string& prefix) {
     }
 }
 
+// Removes a word and rebuilds cached completions to reflect the deletion.
 void Trie::remove(const string& word) {
     if (!isValidWord(word)) {
         return;
@@ -298,6 +310,7 @@ void Trie::remove(const string& word) {
     rebuildTopK(root, prefix);
 }
 
+// Recursively releases all dynamically allocated nodes in the Trie.
 void Trie::destroyTrie(TrieNode* node) {
     if (node == nullptr) {
         return;
@@ -310,6 +323,7 @@ void Trie::destroyTrie(TrieNode* node) {
     delete node;
 }
 
+// Releases the entire Trie when the object is destroyed.
 Trie::~Trie() {
     destroyTrie(root);
 }
