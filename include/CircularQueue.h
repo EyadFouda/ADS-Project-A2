@@ -5,14 +5,14 @@
 
 using namespace std;
 
-// Fixed-size circular queue of strings, used to store search history.
+// Fixed size circular queue of strings, used to store search history.
 // When the queue is full, enqueue overwrites the oldest entry.
 class CircularQueue {
 private:
-    string* data;   // Dynamic array holding the entries
-    int capacity;   // Maximum number of entries
-    int head;       // Index of the oldest entry
-    int count;      // Current number of entries
+    string* data;   // Dynamic array holding the data.
+    int capacity;   // Maximum number of entries.
+    int head;       // Index of the oldest data.
+    int count;      // Current number of elements.
 
     CircularQueue(const CircularQueue&) = delete;
     CircularQueue& operator=(const CircularQueue&) = delete;
@@ -21,7 +21,7 @@ public:
     // Creates an empty queue with the given capacity (default 10).
     CircularQueue(int capacity = 10);
 
-    // Releases the dynamic array.
+    // Deletes the dynamic array.
     ~CircularQueue();
 
     // Adds an item at the back, overwriting the oldest item if full.
@@ -36,7 +36,7 @@ public:
     // Reads the newest item without removing it.
     bool rear(string& item) const;
 
-    // Reads an item by age: offset 0 is the newest, 1 is the one before it.
+    // Reads an item by how old it is: offset 0 is the newest, 1 is the one before it.
     // Used for up/down arrow navigation through history.
     bool getFromNewest(int offset, string& item) const;
 
