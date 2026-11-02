@@ -4,11 +4,11 @@ using namespace std;
 
 // Constructor allocates dynamic array
 Heap::Heap(int initial_capacity){
-	if(initial_capacity <= 0)
-		initial_capacity = 1; // Capacity less than or equal zero may cause errors when resizing so make sure it can't be the capacity
-	capacity = initial_capacity;
-        size = 0;
-        data = new HeapNode[capacity];
+		if(initial_capacity <= 0)
+			initial_capacity = 1; // Capacity less than or equal zero may cause errors when resizing so make sure it can't be the capacity
+		capacity = initial_capacity;
+    	size = 0;
+    	data = new HeapNode[capacity];
 }
 
 // Destructor frees up memory and prevents leaks
