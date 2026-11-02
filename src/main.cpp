@@ -121,7 +121,7 @@ int main() {
     HashTable table;
     CircularQueue history(5);
 
-    string filename = "dictionary.txt";
+    string filename = "../data/dictionary.txt";
     int skipped = 0;
 
     int loaded = loadDictionary(filename, trie, skipped);
