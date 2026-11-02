@@ -1,8 +1,8 @@
 #include "CircularQueue.h"
 
-// Allocates the fixed array and starts with an empty queue.
+// Creates the fixed array and starts with an empty queue.
 CircularQueue::CircularQueue(int capacity) {
-    // A capacity of zero or less cannot hold anything, so fall back to 10
+    // Ensures the capacity is not 0
     if (capacity <= 0) {
         capacity = 10;
     }
@@ -13,17 +13,16 @@ CircularQueue::CircularQueue(int capacity) {
     data = new string[capacity];
 }
 
-// Frees the array to prevent memory leaks.
+// Destructor
 CircularQueue::~CircularQueue() {
     delete[] data;
 }
 
-// Writes the item at the first free slot after the newest item.
-// The modulo operator wraps the index back to 0 at the end of the array.
+// Adds the item at the first free slot after the newest item.
+// The modulus operator makes sure the index cant be out of range.
 void CircularQueue::enqueue(const string& item) {
     if (count == capacity) {
-        // Full: the slot at head is the oldest item, so overwrite it
-        // and move head forward so the next-oldest item becomes the front
+        // Checks if the queue is full and moves the head forward so the next oldest item becomes the front.
         data[head] = item;
         head = (head + 1) % capacity;
     }
@@ -34,14 +33,14 @@ void CircularQueue::enqueue(const string& item) {
     }
 }
 
-// Returns the oldest item through the reference and removes it.
+// Returns the oldest item and removes it.
 bool CircularQueue::dequeue(string& item) {
     if (isEmpty()) {
         return false;
     }
 
     item = data[head];
-    data[head] = "";  // Release the string's memory
+    data[head] = "";  // Remove the data.
     head = (head + 1) % capacity;
     count--;
 
@@ -58,7 +57,7 @@ bool CircularQueue::front(string& item) const {
     return true;
 }
 
-// The newest item sits just before the first free slot.
+// Gets the newest item just before the first free slot.
 bool CircularQueue::rear(string& item) const {
     if (isEmpty()) {
         return false;
@@ -79,12 +78,12 @@ bool CircularQueue::getFromNewest(int offset, string& item) const {
     return true;
 }
 
-// The queue is empty when it holds no items.
+// Check if the queue is empty.
 bool CircularQueue::isEmpty() const {
     return count == 0;
 }
 
-// The queue is full when every slot is used.
+// Checks if the queue is full.
 bool CircularQueue::isFull() const {
     return count == capacity;
 }
@@ -99,7 +98,7 @@ int CircularQueue::getCapacity() const {
     return capacity;
 }
 
-// Resets the queue and releases the stored strings.
+// Resets the queue and resets the stored strings to empty strings.
 void CircularQueue::clear() {
     for (int i = 0; i < capacity; i++) {
         data[i] = "";
