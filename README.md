@@ -19,3 +19,19 @@ Zephyr, U-Boot or a custom CLI expose a serial shell with command completion. St
 build the command trie under a strict memory budget (radix trie, fixed node pool), and implement 
 command history (up/down arrows) with a fixed-size ring buffer: a natural queue/stack
 exercise.
+
+How to build and run:
+
+MacOS:
+mkdir build && cd build
+cmake ..
+make
+./search_engine
+
+Windows:
+mkdir build
+cd build
+cmake ..
+cmake --build . --config Release
+Release\search_engine.exe 
+
