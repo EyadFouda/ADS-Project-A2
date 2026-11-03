@@ -24,14 +24,21 @@ How to build and run:
 
 MacOS:
 mkdir build && cd build
+
 cmake ..
+
 make
+
 ./search_engine
 
 Windows:
 mkdir build
+
 cd build
+
 cmake ..
+
 cmake --build . --config Release
+
 Release\search_engine.exe 
 
