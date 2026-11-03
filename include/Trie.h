@@ -3,6 +3,7 @@
 #define TRIE_H
 
 #include <string>
+#include "Heap.h"
 
 using namespace std;
 
@@ -59,6 +60,10 @@ private:
         TrieNode* node,
         string& prefix
     );
+
+    // Recursively collects all words and frequencies from a subtree into a heap
+    void collectSubtreeWords(TrieNode* node, string& currentPrefix, Heap& heap) const;
+
 
 public:
     // Creates an empty Trie with a root node.

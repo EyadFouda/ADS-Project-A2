@@ -267,36 +267,53 @@ bool Trie::deleteHelper(
     return true;
 }
 
-// Recalculates cached top-five completions for a node and its descendants.
+// Recalculates cached top-five completions for a node and its descendants using the Heap class
 void Trie::rebuildTopK(TrieNode* node, string& prefix) {
     if (node == nullptr) {
         return;
     }
 
-    node->topKSize = 0;
+    Heap subtreeHeap;
+    string currentPrefix = prefix;
+    collectSubtreeWords(node, currentPrefix, subtreeHeap);
 
-    if (node->isEndOfWord) {
-        updateTopK(node, prefix, node->frequency);
+    node->topKSize = 0;
+    while (!subtreeHeap.isEmpty() && node->topKSize < 5) {
+        HeapNode maxNode = subtreeHeap.extractMax();
+        node->topK[node->topKSize].word = maxNode.word;
+        node->topK[node->topKSize].frequency = maxNode.frequency;
+        node->topKSize++;
     }
 
+    // Recursively rebuild for all children
     for (int i = 0; i < 26; i++) {
         if (node->children[i] != nullptr) {
-            prefix += char('a' + i);
-
+            prefix.push_back('a' + i);
             rebuildTopK(node->children[i], prefix);
-
-            for (int j = 0; j < node->children[i]->topKSize; j++) {
-                updateTopK(
-                    node,
-                    node->children[i]->topK[j].word,
-                    node->children[i]->topK[j].frequency
-                );
-            }
-
             prefix.pop_back();
         }
     }
 }
+
+// Helper function: Recursively collects all words and frequencies from a subtree into a Heap
+void Trie::collectSubtreeWords(TrieNode* node, string& currentPrefix, Heap& heap) const {
+    if (node == nullptr) {
+        return;
+    }
+
+    if (node->isEndOfWord) {
+        heap.insert(currentPrefix, node->frequency);
+    }
+
+    for (int i = 0; i < 26; i++) {
+        if (node->children[i] != nullptr) {
+            currentPrefix.push_back('a' + i);
+            collectSubtreeWords(node->children[i], currentPrefix, heap);
+            currentPrefix.pop_back();
+        }
+    }
+}
+
 
 // Removes a word and rebuilds cached completions to reflect the deletion.
 void Trie::remove(const string& word) {
