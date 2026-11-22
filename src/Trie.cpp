@@ -344,3 +344,68 @@ void Trie::destroyTrie(TrieNode* node) {
 Trie::~Trie() {
     destroyTrie(root);
 }
+
+
+// Eyad: Function that chooses the maximum allowed edit distance
+int getMaxEditDistance(int queryLength){
+    if(queryLength <= 2)
+            return 0;
+    if(queryLength <= 5)
+            return 1;
+    return 2;
+}
+
+// Eyad: Function that adds possible words into the candidates array, whenever the trie finds a full word
+void recordFuzzyCandidate(const std::string& word, int frequency, int editDistance, int maxAllowed, FuzzyMatch candidates[], int& candidateCount, int maxCandidates) {
+    if (word.empty()) 
+        return;
+    if (candidateCount >= maxCandidates) 
+        return;
+    if (editDistance > maxAllowed) 
+        return;
+    candidates[candidateCount] = FuzzyMatch{word, frequency, editDistance};
+    candidateCount++;
+}
+
+// Eyad: Function that compares fuzzy matches by edit distance then by frequency then by alphabetically
+bool isBetterFuzzyMatch(const FuzzyMatch& a, const FuzzyMatch& b) {
+    if (a.editDistance != b.editDistance) 
+        return a.editDistance < b.editDistance;
+    if (a.frequency != b.frequency)
+        return a.frequency > b.frequency;
+    return a.word < b.word;
+}
+
+// Eyad: Function that ranks the top maxResults matches and puts them into the results
+int rankFuzzyMatches(FuzzyMatch candidates[], int candidateCount, FuzzyMatch results[], int maxResults) {
+    if (!candidates || !results || candidateCount <= 0 || maxResults <= 0)
+        return 0;
+    int maxDistFound = 0;
+    for (int i = 0; i < candidateCount; i++) { // Loop that finds maximum edit distance in the candidates
+        if (candidates[i].editDistance > maxDistFound) {
+            maxDistFound = candidates[i].editDistance;
+        }
+    }
+    int resultCount = 0;
+
+    // Loop that processes edit distance in ascending order
+    for (int dist = 0; dist <= maxDistFound && resultCount < maxResults; dist++) {
+        Heap tierHeap(candidateCount > 0 ? candidateCount : 1); /// Use heap to rank candidates
+
+        for (int i = 0; i < candidateCount; i++) {
+            if (candidates[i].editDistance == dist) {
+                tierHeap.insert(candidates[i].word, candidates[i].frequency);
+            }
+        }
+
+        // Loop that extracts top element from heap and puts it in results
+        while (!tierHeap.isEmpty() && resultCount < maxResults) {
+            HeapNode topNode = tierHeap.extractMax();
+            results[resultCount].word = topNode.word;
+            results[resultCount].frequency = topNode.frequency;
+            results[resultCount].editDistance = dist;
+            resultCount++;
+        }
+    }
+    return resultCount;
+}
