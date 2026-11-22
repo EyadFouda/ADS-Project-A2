@@ -32,7 +32,7 @@ bool Trie::isValidWord(const string& word) const {
         return false;
     }
 
-    for (int i = 0; i < word.length(); i++) {
+    for (size_t i = 0; i < word.length(); i++) {
         if (getIndex(word[i]) == -1) {
             return false;
         }
@@ -49,7 +49,7 @@ void Trie::insert(const string& word, int frequency) {
 
     TrieNode* current = root;
 
-    for (int i = 0; i < word.length(); i++) {
+    for (size_t i = 0; i < word.length(); i++) {
         int index = getIndex(word[i]);
 
         if (current->children[index] == nullptr) {
@@ -73,7 +73,7 @@ void Trie::insert(const string& word, int frequency) {
 
     updateTopK(current, word, actualFrequency);
 
-    for (int i = 0; i < word.length(); i++) {
+    for (size_t i = 0; i < word.length(); i++) {
         int index = getIndex(word[i]);
         current = current->children[index];
         updateTopK(current, word, actualFrequency);
@@ -88,7 +88,7 @@ bool Trie::search(const string& word) const {
 
     const TrieNode* current = root;
 
-    for (int i = 0; i < word.length(); i++) {
+    for (size_t i = 0; i < word.length(); i++) {
         int index = getIndex(word[i]);
 
         if (current->children[index] == nullptr) {
@@ -109,7 +109,7 @@ bool Trie::startsWith(const string& prefix) const {
 
     const TrieNode* current = root;
 
-    for (int i = 0; i < prefix.length(); i++) {
+    for (size_t i = 0; i < prefix.length(); i++) {
         int index = getIndex(prefix[i]);
 
         if (index == -1 || current->children[index] == nullptr) {
