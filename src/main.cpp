@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-
+#include <conio.h>
 #include "Trie.h"
 #include "HashTable.h"
 #include "CircularQueue.h"
@@ -116,6 +116,64 @@ void displayHistory(CircularQueue& history) {
     }
 }
 
+
+
+void testLiveInput(const Trie& trie) {
+    char prefix[100] = "";
+    int length = 0;
+
+    while (true) {
+        // Clear the terminal and redraw the search.
+        cout << "\033[2J\033[H";
+
+        cout << "LIVE AUTOCOMPLETE\n";
+        cout << "Type lowercase letters. Backspace deletes. Enter finishes.\n\n";
+
+        cout << "Search: " << prefix << "\n\n";
+
+        // Get suggestions from the Trie.
+        if (length > 0) {
+            Completion results[5];
+            int count = rankedSearch(trie, prefix, results, 5);
+
+            cout << "Suggestions:\n";
+            displayResults(results, count);
+        }
+
+        int ch = _getch();
+
+        // Enter finishes live autocomplete.
+        if (ch == 13) {
+            break;
+        }
+
+        // Ignore special keys.
+        if (ch == 0 || ch == 224) {
+            _getch();
+            continue;
+        }
+
+        // Backspace deletes the last character.
+        if (ch == 8 || ch == 127) {
+            if (length > 0) {
+                length--;
+                prefix[length] = '\0';
+            }
+        }
+        // Accept lowercase English letters.
+        else if (ch >= 'a' && ch <= 'z' && length < 99) {
+            prefix[length] = (char)ch;
+            length++;
+            prefix[length] = '\0';
+        }
+    }
+
+    cout << "\033[2J\033[H";
+    cout << "Search finished. You typed: " << prefix << "\n";
+}
+
+
+
 int main() {
     Trie trie;
     HashTable table;
@@ -139,6 +197,7 @@ int main() {
     cout << "Dictionary loaded successfully.\n";
     cout << "Loaded entries: " << loaded << "\n";
     cout << "Skipped lines: " << skipped << "\n";
+    testLiveInput(trie);
 
     cout << "\nCommands:\n";
     cout << "Enter a prefix to search.\n";
