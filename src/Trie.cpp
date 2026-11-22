@@ -188,7 +188,7 @@ int Trie::autocomplete(
 
     const TrieNode* current = root;
 
-    for (int i = 0; i < prefix.length(); i++) {
+    for (int i = 0; i < static_cast<int>(prefix.length()); i++) {
         int index = getIndex(prefix[i]);
 
         if (index == -1 || current->children[index] == nullptr) {
@@ -221,7 +221,7 @@ bool Trie::deleteHelper(
         return false;
     }
 
-    if (depth == word.length()) {
+    if (depth == static_cast<int>(word.length())) {
         if (!node->isEndOfWord) {
             return false;
         }
