@@ -409,3 +409,160 @@ int rankFuzzyMatches(FuzzyMatch candidates[], int candidateCount, FuzzyMatch res
     }
     return resultCount;
 }
+
+//SARA
+void Trie::fuzzyTraversal(
+   const TrieNode* node,
+   char letter,
+   const string& query,
+   const int previousRow[],
+   int maxAllowed,
+   string& currentWord,
+   FuzzyMatch candidates[],
+   int& candidateCount,
+   int maxCandidates
+) const {
+   if (node == nullptr) {
+       return;
+   }
+
+
+   int queryLen = (int)query.length();
+
+
+   int* currentRow = new int[queryLen + 1];
+
+
+   currentRow[0] = previousRow[0] + 1;
+   int rowMinimum = currentRow[0];
+
+
+   for (int j = 1; j <= queryLen; j++) {
+       int cost = (query[j - 1] == letter) ? 0 : 1;
+
+
+       int deletion = previousRow[j] + 1;
+       int insertion = currentRow[j - 1] + 1;
+       int substitution = previousRow[j - 1] + cost;
+
+
+       int best = deletion;
+
+
+      
+       if (insertion < best) {
+           best = insertion;
+       }
+
+
+       if (substitution < best) {
+           best = substitution;
+       }
+
+
+       currentRow[j] = best;
+
+
+       if (best < rowMinimum) {
+           rowMinimum = best;
+       }
+   }
+
+
+   currentWord.push_back(letter);
+
+
+   if (node->isEndOfWord &&
+       currentRow[queryLen] <= maxAllowed) {
+
+
+       recordFuzzyCandidate(
+           currentWord,
+           node->frequency,
+           currentRow[queryLen],
+           maxAllowed,
+           candidates,
+           candidateCount,
+           maxCandidates
+       );
+   }
+
+
+   if (rowMinimum <= maxAllowed) {
+       for (int i = 0; i < 26; i++) {
+           if (node->children[i] != nullptr) {
+               fuzzyTraversal(
+                   node->children[i],
+                   'a' + i,
+                   query,
+                   currentRow,
+                   maxAllowed,
+                   currentWord,
+                   candidates,
+                   candidateCount,
+                   maxCandidates
+               );
+           }
+       }
+   }
+
+
+   currentWord.pop_back();
+
+
+   delete[] currentRow;
+}
+
+
+int Trie::getFuzzyMatches(
+   const string& query,
+   FuzzyMatch candidates[],
+   int maxCandidates,
+   int maxAllowed
+) const {
+   if (!isValidWord(query) ||
+       candidates == nullptr ||
+       maxCandidates <= 0 ||
+       maxAllowed < 0 ||
+       root==nullptr) {
+       return 0;
+   }
+
+
+   int queryLen = (int)query.length();
+
+
+   int* initialRow = new int[queryLen + 1];
+
+
+   for (int j = 0; j <= queryLen; j++) {
+       initialRow[j] = j;
+   }
+
+
+   int candidateCount = 0;
+   string currentWord = "";
+
+
+   for (int i = 0; i < 26; i++) {
+       if (root->children[i] != nullptr) {
+           fuzzyTraversal(
+               root->children[i],
+               'a' + i,
+               query,
+               initialRow,
+               maxAllowed,
+               currentWord,
+               candidates,
+               candidateCount,
+               maxCandidates
+           );
+       }
+   }
+
+
+   delete[] initialRow;
+
+
+   return candidateCount;
+}

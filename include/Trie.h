@@ -17,6 +17,13 @@ struct Completion {
     }
 };
 
+struct FuzzyMatch{          //SARA
+   string word;
+   int frequency =0;
+   int editDistance =0;
+};
+
+
 struct TrieNode {
     TrieNode* children[26];
     bool isEndOfWord;
@@ -31,6 +38,19 @@ struct TrieNode {
 class Trie {
 private:
     TrieNode* root;
+
+    void fuzzyTraversal(                //SARA
+       const TrieNode* node,
+       char letter,
+       const string& query,
+       const int previousRow[],
+       int maxAllowed,
+       string& currentWord,
+       FuzzyMatch candidates[],
+       int& candidateCount,
+       int maxCandidates
+   ) const; 
+
 
     // Converts a lowercase character into an array index.
     int getIndex(char c) const;
@@ -90,6 +110,42 @@ public:
         Completion results[],
         int maxResults
     ) const;
+
+    int getFuzzyMatches(                //SARA
+   const string& query,
+   FuzzyMatch candidates[],
+   int maxCandidates,
+   int maxAllowed
+   ) const;
+
 };
+
+int getMaxEditDistance(int queryLen);       //SARA
+
+
+void recordFuzzyCandidate(                  //SARA
+   const string& word,
+   int frequency,
+   int editDistance,
+   int maxAllowed,
+   FuzzyMatch candidates[],
+   int& candidateCount,
+   int maxCandidates
+);
+
+
+bool isBetterFuzzyMatch(                //SARA
+   const FuzzyMatch& a,
+   const FuzzyMatch& b
+);
+
+
+int rankFuzzyMatches(               //SARA
+   FuzzyMatch candidates[],
+   int candidateCount,
+   FuzzyMatch results[],
+   int maxResults
+);
+
 
 #endif
