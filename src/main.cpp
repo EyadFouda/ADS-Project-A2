@@ -101,6 +101,26 @@ void displayResults(Completion results[], int count) {
     }
 }
 
+
+void displayFuzzyResults(FuzzyMatch results[], int count) {
+    if (count == 0) {
+        cout << "No close spelling matches found.\n";
+        return;
+    }
+
+    cout << "\nDid you mean:\n";
+
+    for (int i = 0; i < count; i++) {
+        cout << i + 1 << ". "
+             << results[i].word
+             << " (Edit distance: "
+             << results[i].editDistance
+             << ", Frequency: "
+             << results[i].frequency << ")\n";
+    }
+}
+
+
 // Displays the recent search history.
 void displayHistory(CircularQueue& history) {
     if (history.isEmpty()) {
@@ -168,9 +188,44 @@ void testLiveInput(const Trie& trie) {
         }
     }
 
-    cout << "\033[2J\033[H";
-    cout << "Search finished. You typed: " << prefix << "\n";
+   
+cout << "\033[2J\033[H";
+
+cout << "Search finished. You typed: " << prefix << "\n";
+
+if (length > 0) {
+
+    if (trie.search(string(prefix))) {
+        cout << "The word exists in the dictionary.\n";
+    }
+    else {
+        int maxCandidates = 100;
+        int maxResults = 5;
+
+        FuzzyMatch candidates[100];
+        FuzzyMatch results[5];
+
+        int maxAllowed = getMaxEditDistance(length);
+
+        int candidateCount = trie.getFuzzyMatches(
+            string(prefix),
+            candidates,
+            maxCandidates,
+            maxAllowed
+        );
+
+        int resultCount = rankFuzzyMatches(
+            candidates,
+            candidateCount,
+            results,
+            maxResults
+        );
+
+        displayFuzzyResults(results, resultCount);
+    }
 }
+}
+
 
 
 
@@ -295,12 +350,40 @@ int main() {
             continue;
         }
 
-        history.enqueue(prefix);
+        
+history.enqueue(prefix);
 
-        Completion results[5];
-        int count = rankedSearch(trie, prefix, results, 5);
+Completion results[5];
+int count = rankedSearch(trie, prefix, results, 5);
 
-        displayResults(results, count);
+if (count > 0) {
+    displayResults(results, count);
+}
+else {
+    cout << "No autocomplete suggestions found.\n";
+
+    FuzzyMatch candidates[100];
+    FuzzyMatch fuzzyResults[5];
+
+    int maxAllowed = getMaxEditDistance((int)prefix.length());
+
+    int candidateCount = trie.getFuzzyMatches(
+        prefix,
+        candidates,
+        100,
+        maxAllowed
+    );
+
+    int resultCount = rankFuzzyMatches(
+        candidates,
+        candidateCount,
+        fuzzyResults,
+        5
+    );
+
+    displayFuzzyResults(fuzzyResults, resultCount);
+}
+
     }
 
     cout << "Program terminated.\n";
