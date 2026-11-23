@@ -136,11 +136,19 @@ void displayHistory(CircularQueue& history) {
     }
 }
 
+// Saves a search unless it is empty or repeats the newest one.
+void recordSearch(CircularQueue& history, const string& search) {
+    string newest;
+    if (search.empty() || (history.rear(newest) && newest == search)) {
+        return;
+    }
+    history.enqueue(search);
+}
 
-
-void testLiveInput(const Trie& trie) {
+void testLiveInput(const Trie& trie, CircularQueue& history) {
     char prefix[100] = "";
     int length = 0;
+    int cursor = -1;  // Offset from newest search while browsing history and -1 means not browsing.
 
     while (true) {
         // Clear the terminal and redraw the search.
@@ -162,14 +170,37 @@ void testLiveInput(const Trie& trie) {
 
         int ch = _getch();
 
-        // Enter finishes live autocomplete.
-        if (ch == 13) {
+            if (ch == 13) {
+            recordSearch(history, string(prefix));
             break;
         }
 
-        // Ignore special keys.
+        // Arrow keys arrive as 0 or 224 followed by a key code: 72 = Up, 80 = Down.
         if (ch == 0 || ch == 224) {
-            _getch();
+            int key = _getch();
+            string recalled;
+
+            if (key == 72 && cursor + 1 < history.getSize()) {
+                cursor++;
+                history.getFromNewest(cursor, recalled);
+            }
+            else if (key == 80 && cursor >= 0) {
+                cursor--;
+                if (cursor >= 0) {
+                    history.getFromNewest(cursor, recalled);
+                }  // cursor == -1 leaves recalled empty (back to blank input)
+            }
+            else {
+                continue;
+            }
+
+            // Replace the typed input with the recalled search.
+            length = 0;
+            while (length < (int)recalled.length() && length < 99) {
+                prefix[length] = recalled[length];
+                length++;
+            }
+            prefix[length] = '\0';
             continue;
         }
 
@@ -252,7 +283,7 @@ int main() {
     cout << "Dictionary loaded successfully.\n";
     cout << "Loaded entries: " << loaded << "\n";
     cout << "Skipped lines: " << skipped << "\n";
-    testLiveInput(trie);
+    testLiveInput(trie,history);
 
     cout << "\nCommands:\n";
     cout << "Enter a prefix to search.\n";
@@ -351,7 +382,7 @@ int main() {
         }
 
         
-history.enqueue(prefix);
+recordSearch(history, prefix);
 
 Completion results[5];
 int count = rankedSearch(trie, prefix, results, 5);
