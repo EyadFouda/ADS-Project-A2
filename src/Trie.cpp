@@ -348,28 +348,36 @@ Trie::~Trie() {
 
 // Eyad: Function that chooses the maximum allowed edit distance
 int getMaxEditDistance(int queryLength){
-    if(queryLength <= 2)
-            return 0;
-    if(queryLength <= 5)
-            return 1;
+    // One edit for very short words but for other words allow two edits
+    if (queryLength <= 2)
+        return 1;
     return 2;
 }
 
 // Eyad: Function that adds possible words into the candidates array, whenever the trie finds a full word
 void recordFuzzyCandidate(const std::string& word, int frequency, int editDistance, int maxAllowed, FuzzyMatch candidates[], int& candidateCount, int maxCandidates) {
-    if (word.empty()) 
+    if (word.empty() || editDistance > maxAllowed || maxCandidates <= 0)
         return;
-    if (candidateCount >= maxCandidates) 
+
+    FuzzyMatch incoming{word, frequency, editDistance};
+    if (candidateCount < maxCandidates) {
+        candidates[candidateCount] = incoming;
+        candidateCount++;
         return;
-    if (editDistance > maxAllowed) 
-        return;
-    candidates[candidateCount] = FuzzyMatch{word, frequency, editDistance};
-    candidateCount++;
+    }
+    // The array is full, so replace the worst saved match when this one is better.
+    int worst = 0;
+    for (int i = 1; i < candidateCount; i++) {
+        if (isBetterFuzzyMatch(candidates[worst], candidates[i]))
+            worst = i;
+    }
+    if (isBetterFuzzyMatch(incoming, candidates[worst]))
+        candidates[worst] = incoming;
 }
 
 // Eyad: Function that compares fuzzy matches by edit distance then by frequency then by alphabetically
 bool isBetterFuzzyMatch(const FuzzyMatch& a, const FuzzyMatch& b) {
-    if (a.editDistance != b.editDistance) 
+    if (a.editDistance != b.editDistance)
         return a.editDistance < b.editDistance;
     if (a.frequency != b.frequency)
         return a.frequency > b.frequency;
@@ -380,33 +388,29 @@ bool isBetterFuzzyMatch(const FuzzyMatch& a, const FuzzyMatch& b) {
 int rankFuzzyMatches(FuzzyMatch candidates[], int candidateCount, FuzzyMatch results[], int maxResults) {
     if (!candidates || !results || candidateCount <= 0 || maxResults <= 0)
         return 0;
-    int maxDistFound = 0;
-    for (int i = 0; i < candidateCount; i++) { // Loop that finds maximum edit distance in the candidates
-        if (candidates[i].editDistance > maxDistFound) {
-            maxDistFound = candidates[i].editDistance;
-        }
-    }
+    bool* used = new bool[candidateCount];
+    for (int i = 0; i < candidateCount; i++)
+        used[i] = false;
     int resultCount = 0;
-
-    // Loop that processes edit distance in ascending order
-    for (int dist = 0; dist <= maxDistFound && resultCount < maxResults; dist++) {
-        Heap tierHeap(candidateCount > 0 ? candidateCount : 1); /// Use heap to rank candidates
+    int limit = maxResults < candidateCount ? maxResults : candidateCount;
+    // Pick the best remaining match each time using the same comparison as the candidate list.
+    while (resultCount < limit) {
+        int best = -1;
 
         for (int i = 0; i < candidateCount; i++) {
-            if (candidates[i].editDistance == dist) {
-                tierHeap.insert(candidates[i].word, candidates[i].frequency);
-            }
+            if (used[i])
+                continue;
+            if (best == -1 || isBetterFuzzyMatch(candidates[i], candidates[best]))
+                best = i;
         }
+        if (best == -1)
+            break;
 
-        // Loop that extracts top element from heap and puts it in results
-        while (!tierHeap.isEmpty() && resultCount < maxResults) {
-            HeapNode topNode = tierHeap.extractMax();
-            results[resultCount].word = topNode.word;
-            results[resultCount].frequency = topNode.frequency;
-            results[resultCount].editDistance = dist;
-            resultCount++;
-        }
+        used[best] = true;
+        results[resultCount] = candidates[best];
+        resultCount++;
     }
+    delete[] used;
     return resultCount;
 }
 
